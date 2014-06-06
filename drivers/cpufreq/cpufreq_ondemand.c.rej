@@ -1,0 +1,11 @@
+--- drivers/cpufreq/cpufreq_ondemand.c
++++ drivers/cpufreq/cpufreq_ondemand.c
+@@ -29,7 +29,7 @@
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/cpufreq_interactive.h>
+-
++static DEFINE_PER_CPU(int, cpufreq_init_done);
+ 
+ #define DEF_FREQUENCY_DOWN_DIFFERENTIAL		(10)
+ #define DEF_FREQUENCY_UP_THRESHOLD		(80)
