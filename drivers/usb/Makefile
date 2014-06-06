@@ -1,7 +1,8 @@
 #
 # Makefile for the kernel USB device drivers.
 #
-
+KBUILD_CFLAGS	+= -Wno-error=implicit-function-declaration
+KBUILD_CFLAGS	+= -Wimplicit-function-declaration
 # Object files in subdirectories
 
 obj-$(CONFIG_USB)		+= core/

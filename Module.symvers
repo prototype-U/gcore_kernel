@@ -3008,6 +3008,7 @@
 0xd41d34f6	msm_spm_set_vdd	vmlinux	EXPORT_SYMBOL
 0x07b52e38	rtnl_unregister	vmlinux	EXPORT_SYMBOL_GPL
 0xa15ee201	usb_diag_write	vmlinux	EXPORT_SYMBOL
+0xf27d0ad8	usb_bus_start_enum	vmlinux	EXPORT_SYMBOL_GPL
 0x74315573	platform_bus_type	vmlinux	EXPORT_SYMBOL_GPL
 0xd5d87f33	blk_rq_map_user	vmlinux	EXPORT_SYMBOL
 0x1f40c645	jbd2_journal_clear_features	vmlinux	EXPORT_SYMBOL
