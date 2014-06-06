@@ -1,0 +1,11 @@
+--- include/linux/cpufreq.h
++++ include/linux/cpufreq.h
+@@ -171,7 +171,7 @@
+ int lock_policy_rwsem_write(int cpu);
+ void unlock_policy_rwsem_write(int cpu);
+ 
+-extern DEFINE_PER_CPU(int, cpufreq_init_done);
++
+ 
+ 
+ #define CPUFREQ_RELATION_L 0  

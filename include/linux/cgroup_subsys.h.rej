@@ -1,0 +1,12 @@
+--- include/linux/cgroup_subsys.h
++++ include/linux/cgroup_subsys.h
+@@ -50,6 +50,9 @@
+ SUBSYS(perf)
+ #endif
+ 
++#ifdef CONFIG_CGROUP_BFQIO
++SUBSYS(bfqio)
++#endif
+ 
+ #ifdef CONFIG_NETPRIO_CGROUP
+ SUBSYS(net_prio)
