@@ -50,6 +50,7 @@
 
 #include "internal.h"
 
+#define CONFIG_VENDOR_EDIT
 #define CREATE_TRACE_POINTS
 #include <trace/events/vmscan.h>
 
@@ -2673,6 +2674,13 @@ static bool sleeping_prematurely(pg_data_t *pgdat, int order, long remaining,
 		return !all_zones_ok;
 }
 
+#ifdef CONFIG_VENDOR_EDIT
+long congestion_wait_kswapd(int sync, long timeout);
+
+/* OPPO 2013-10-22 huanggd Add end */
+
+#endif //CONFIG_VENDOR_EDIT
+
 /*
  * For kswapd, balance_pgdat() will work across all this node's zones until
  * they are all at high_wmark_pages(zone).
@@ -2908,7 +2916,11 @@ loop_again:
 			if (has_under_min_watermark_zone)
 				count_vm_event(KSWAPD_SKIP_CONGESTION_WAIT);
 			else
+#ifndef CONFIG_VENDOR_EDIT
 				congestion_wait(BLK_RW_ASYNC, HZ/10);
+#else
+				congestion_wait_kswapd(BLK_RW_ASYNC, HZ/10);
+#endif
 		}
 
 		/*
@@ -3689,4 +3701,7 @@ void scan_unevictable_unregister_node(struct node *node)
 {
 	device_remove_file(&node->dev, &dev_attr_scan_unevictable_pages);
 }
+
+
+
 #endif
