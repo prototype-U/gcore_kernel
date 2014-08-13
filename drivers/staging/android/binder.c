@@ -33,6 +33,7 @@
 #include <linux/uaccess.h>
 #include <linux/vmalloc.h>
 #include <linux/slab.h>
+#include <linux/freezer.h>
 
 #include "binder.h"
 
@@ -1599,6 +1600,7 @@ static void binder_transaction(struct binder_proc *proc,
 		goto err_bad_offset;
 	}
 	off_end = (void *)offp + tr->offsets_size;
+	off_min = 0;
 	for (; offp < off_end; offp++) {
 		struct flat_binder_object *fp;
 		if (*offp > t->buffer->data_size - sizeof(*fp) || *offp < off_min ||
@@ -2273,7 +2275,7 @@ retry:
 			if (!binder_has_proc_work(proc, thread))
 				ret = -EAGAIN;
 		} else
-			ret = wait_event_freezable_exclusive(proc->wait, binder_has_proc_work(proc, thread));
+			ret = wait_event_interruptible_exclusive(proc->wait, binder_has_proc_work(proc, thread));
 	} else {
 		if (non_block) {
 			if (!binder_has_thread_work(thread))
@@ -2557,8 +2559,6 @@ static void binder_release_work(struct list_head *list)
 		default:
 			pr_err("binder: unexpected work type, %d, not freed\n",
 			       w->type);
-		default:
-			break;
 		}
 	}
 
