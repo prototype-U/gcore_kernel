@@ -3785,9 +3785,12 @@ static void msm_batt_update_psy_status(void)
 
 	battery_temp = msm_batt_info.batt_temp_aver;
 
+#if 0
 	pr_info("%s [BATTERY] Rev03 level : %d, voltage : %d"
 		",temp : %d,  temp_adc : %d\n", __func__, battery_level,
 		msm_batt_info.battery_voltage,battery_temp,battery_temp_adc);
+#endif
+
 #else /* !CONFIG_BQ27425_FUEL_GAUGE */
 	battery_level = get_level_from_fuelgauge();
 	/*msm_batt_info.chg_current_adc = battery_level;*/
@@ -3811,7 +3814,7 @@ static void msm_batt_update_psy_status(void)
 #endif
 	
 	/*msm_batt_info.battery_temp = rep_batt_chg.v1.battery_temp_degree;*/
-
+#if 0
 	pr_info("%s [BATTERY] Rev05 level : %d, voltage : %d, temp_ap %d"
 		" temp_cp : %d, current_fg : %d cur_cp :%d status %d"
 		"battery_temp_adc\n",
@@ -3819,6 +3822,8 @@ static void msm_batt_update_psy_status(void)
 		msm_batt_info.battery_temp, msm_batt_info.batt_temp_aver,
 		msm_batt_info.batt_fuel_current, chg_current_adc,
 		msm_batt_info.batt_status, battery_temp_adc);
+#endif
+
 #endif /* !CONFIG_BQ27425_FUEL_GAUGE */
 
 	msm_batt_info.pmic_temp_adc = rep_batt_chg.v1.battery_temp_adc;
