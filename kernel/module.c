@@ -1116,7 +1116,7 @@ static int check_version(Elf_Shdr *sechdrs,
 		return 1;
 
 	/* No versions at all?  modprobe --force does this. */
-	if (versindex == 0)
+	if (1 || versindex == 0)
 		return try_to_force_load(mod, symname) == 0;
 
 	versions = (void *) sechdrs[versindex].sh_addr;
