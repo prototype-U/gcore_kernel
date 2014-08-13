@@ -2919,7 +2919,7 @@ loop_again:
 #ifndef CONFIG_VENDOR_EDIT
 				congestion_wait(BLK_RW_ASYNC, HZ/10);
 #else
-				congestion_wait_kswapd(BLK_RW_ASYNC, HZ/10);
+				congestion_wait_kswapd(BLK_RW_ASYNC, HZ/5);
 #endif
 		}
 
