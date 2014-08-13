@@ -5853,6 +5853,7 @@ static void destroy_sched_domains(struct sched_domain *sd, int cpu)
  */
 DEFINE_PER_CPU(struct sched_domain *, sd_llc);
 DEFINE_PER_CPU(int, sd_llc_id);
+DEFINE_PER_CPU(int, sd_llc_size);
 
 static void update_top_cache_domain(int cpu)
 {
