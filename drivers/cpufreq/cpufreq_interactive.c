@@ -107,6 +107,11 @@ static struct workqueue_struct *inputopen_wq;
 
 static int boost_val;
 
+static bool governidle;
+module_param(governidle, bool, S_IWUSR | S_IRUGO);
+MODULE_PARM_DESC(governidle,
+	"Set to 1 to wake up CPUs from idle to reduce speed (default 0)");
+
 static int cpufreq_governor_interactive(struct cpufreq_policy *policy,
 		unsigned int event);
 
@@ -255,7 +260,7 @@ rearm_if_notmax:
 
 rearm:
 	if (!timer_pending(&pcpu->cpu_timer)) {
-		if (pcpu->target_freq == pcpu->policy->min)
+		if (governidle && pcpu->target_freq == pcpu->policy->min)
 			pcpu->timer_idlecancel = 1;
 
 		pcpu->time_in_idle = get_cpu_idle_time_us(
@@ -280,7 +285,6 @@ static void cpufreq_interactive_idle_start(void)
 	pending = timer_pending(&pcpu->cpu_timer);
 
 	if (pcpu->target_freq != pcpu->policy->min) {
-#ifdef CONFIG_SMP
 		/*
 		 * Entering idle while not at lowest speed.  On some
 		 * platforms this can hold the other CPU(s) at that speed
@@ -296,8 +300,7 @@ static void cpufreq_interactive_idle_start(void)
 			mod_timer_pinned(&pcpu->cpu_timer,
 					 jiffies + usecs_to_jiffies(timer_rate));
 		}
-#endif
-	} else {
+	} else if (governidle) {
 		/*
 		 * If at min speed and entering idle after load has
 		 * already been evaluated, and a timer has been set just in
@@ -835,7 +838,10 @@ static int __init cpufreq_interactive_init(void)
 	/* Initalize per-cpu timers */
 	for_each_possible_cpu(i) {
 		pcpu = &per_cpu(cpuinfo, i);
-		init_timer(&pcpu->cpu_timer);
+		if (governidle)
+			init_timer(&pcpu->cpu_timer);
+		else
+			init_timer_deferrable(&pcpu->cpu_timer);
 		pcpu->cpu_timer.function = cpufreq_interactive_timer;
 		pcpu->cpu_timer.data = i;
 	}
