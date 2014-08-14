@@ -354,16 +354,7 @@ static struct task_struct *select_bad_process(unsigned int *ppoints,
 		if (!p->mm)
 			continue;
 
-		if (p->flags & PF_EXITING) {
-			/*
-			 * If p is the current task and is in the process of
-			 * releasing memory, we allow the "kill" to set
-			 * TIF_MEMDIE, which will allow it to gain access to
-			 * memory reserves.  Otherwise, it may stall forever.
-			 *
-			 * The loop isn't broken here, however, in case other
-			 * threads are found to have already been oom killed.
-			 */
+		if (p->flags & PF_EXITING && !force_kill) {
 			if (p == current) {
 				chosen = p;
 				*ppoints = 1000;
@@ -729,7 +720,7 @@ void out_of_memory(struct zonelist *zonelist, gfp_t gfp_mask,
 	 * goal is to allow it to allocate so that it may quickly exit and free
 	 * its memory.
 	 */
-	if (fatal_signal_pending(current)) {
+	if (fatal_signal_pending(current) || current->flags & PF_EXITING) {
 		set_thread_flag(TIF_MEMDIE);
 		return;
 	}
