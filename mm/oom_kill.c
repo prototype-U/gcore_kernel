@@ -141,14 +141,21 @@ struct task_struct *find_lock_task_mm(struct task_struct *p)
 {
 	struct task_struct *t = p;
 
+	rcu_read_lock();
+
 	do {
 		task_lock(t);
 		if (likely(t->mm))
-			return t;
+			goto found;
 		task_unlock(t);
 	} while_each_thread(p, t);
 
-	return NULL;
+	t = NULL;
+
+found:
+	rcu_read_unlock();
+
+	return t;
 }
 
 /* return true if the task is not adequate as candidate victim task. */
