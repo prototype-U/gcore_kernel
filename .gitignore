@@ -18,6 +18,7 @@
 /include/config/iosched/sioplus.h
 /include/config/kernel.release
 /include/config/ksm.h
+/include/config/mmc/block/bounce.h
 /include/config/module/force/
 /include/config/module/srcversion/
 /include/config/msm7x00a/idle/sleep/mode/power/collapse/
@@ -28,6 +29,8 @@
 /include/config/rcu/boost.h
 /include/config/rcu/fast/
 /include/config/sched/
+/include/config/sec/log/
+/include/config/sec/log.h
 /include/config/swap.h
 /include/config/tristate.conf
 /include/config/wq/
