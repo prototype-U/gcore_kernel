@@ -824,7 +824,7 @@ static void msm_battery_register_callback(
 		struct msm_battery_callback *ptr)
 {
 	charger_callbacks = ptr;
-	pr_info("[BATT] msm_battery_register_callback start\n");
+	//pr_info("[BATT] msm_battery_register_callback start\n");
 	if ((set_acc_status != 0) && charger_callbacks
 		&& charger_callbacks->set_acc_type)
 		charger_callbacks->set_acc_type(charger_callbacks,
@@ -1047,7 +1047,7 @@ void trebon_chg_connected(enum chg_type chgtype)
 
 static void jena_usb_cb(u8 attached, struct fsausb_ops *ops)
 {
-	pr_info("[BATT] [%s] Board file [fsa9480]: USB Callback\n", __func__);
+	//pr_info("[BATT] [%s] Board file [fsa9480]: USB Callback\n", __func__);
 
 	set_acc_status = attached ? ACC_TYPE_USB : ACC_TYPE_NONE;
 	if (charger_callbacks && charger_callbacks->set_acc_type)
@@ -1063,7 +1063,7 @@ static void jena_usb_cb(u8 attached, struct fsausb_ops *ops)
 //extern  void charger_enable(int enable);
 static void jena_charger_cb(u8 attached, struct fsausb_ops *ops)
 {
-	pr_info("[BATT] Board file [fsa9480]: Charger Callback\n");
+	//pr_info("[BATT] Board file [fsa9480]: Charger Callback\n");
 
 	set_acc_status = attached ? ACC_TYPE_CHARGER : ACC_TYPE_NONE;
 	if (charger_callbacks && charger_callbacks->set_acc_type)
@@ -1085,7 +1085,7 @@ static void jena_jig_cb(u8 attached, struct fsa9480_ops *ops)
 
 static void jena_ovp_cb(u8 attached, struct fsa9480_ops *ops)
 {
-	pr_info("[BATT] Board file [fsa9480]: OVP Callback type:%d\n",attached);
+	//pr_info("[BATT] Board file [fsa9480]: OVP Callback type:%d\n",attached);
 
 	set_ovp_status = attached ? OVP_TYPE_OVP : OVP_TYPE_NONE;
 	if (charger_callbacks && charger_callbacks->set_ovp_type)

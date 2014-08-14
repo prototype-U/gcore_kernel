@@ -46,6 +46,7 @@ enum clock_event_nofitiers {
 #define CLOCK_EVT_FEAT_PERIODIC		0x000001
 #define CLOCK_EVT_FEAT_ONESHOT		0x000002
 #define CLOCK_EVT_FEAT_KTIME		0x000004
+#define CLOCK_EVT_FEAT_DYNIRQ		0x000020
 /*
  * x86(64) specific misfeatures:
  *

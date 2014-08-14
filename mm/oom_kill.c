@@ -99,7 +99,10 @@ int test_set_oom_score_adj(int new_val)
 static bool has_intersects_mems_allowed(struct task_struct *tsk,
 					const nodemask_t *mask)
 {
-	struct task_struct *start = tsk;
+	struct task_struct *tsk;
+	bool ret = false;
+
+	rcu_read_lock();
 
 	do {
 		if (mask) {
@@ -109,19 +112,21 @@ static bool has_intersects_mems_allowed(struct task_struct *tsk,
 			 * mempolicy intersects current, otherwise it may be
 			 * needlessly killed.
 			 */
-			if (mempolicy_nodemask_intersects(tsk, mask))
-				return true;
+			ret = mempolicy_nodemask_intersects(tsk, mask);
 		} else {
 			/*
 			 * This is not a mempolicy constrained oom, so only
 			 * check the mems of tsk's cpuset.
 			 */
-			if (cpuset_mems_allowed_intersects(current, tsk))
-				return true;
+			ret = cpuset_mems_allowed_intersects(current, tsk);
 		}
+		if (ret)
+			break;
 	} while_each_thread(start, tsk);
 
-	return false;
+	rcu_read_unlock();
+
+	return true;
 }
 #else
 static bool has_intersects_mems_allowed(struct task_struct *tsk,
@@ -141,14 +146,21 @@ struct task_struct *find_lock_task_mm(struct task_struct *p)
 {
 	struct task_struct *t = p;
 
+	rcu_read_lock();
+
 	do {
 		task_lock(t);
 		if (likely(t->mm))
-			return t;
+			goto found;
 		task_unlock(t);
 	} while_each_thread(p, t);
 
-	return NULL;
+	t = NULL;
+
+found:
+	rcu_read_unlock();
+
+	return t;
 }
 
 /* return true if the task is not adequate as candidate victim task. */
@@ -271,7 +283,7 @@ static enum oom_constraint constrained_alloc(struct zonelist *zonelist,
 	 * the page allocator means a mempolicy is in effect.  Cpuset policy
 	 * is enforced in get_page_from_freelist().
 	 */
-	if (nodemask && !nodes_subset(node_states[N_HIGH_MEMORY], *nodemask)) {
+	if (nodemask && !nodes_subset(node_states[N_MEMORY], *nodemask)) {
 		*totalpages = total_swap_pages;
 		for_each_node_mask(nid, *nodemask)
 			*totalpages += node_spanned_pages(nid);
@@ -342,16 +354,7 @@ static struct task_struct *select_bad_process(unsigned int *ppoints,
 		if (!p->mm)
 			continue;
 
-		if (p->flags & PF_EXITING) {
-			/*
-			 * If p is the current task and is in the process of
-			 * releasing memory, we allow the "kill" to set
-			 * TIF_MEMDIE, which will allow it to gain access to
-			 * memory reserves.  Otherwise, it may stall forever.
-			 *
-			 * The loop isn't broken here, however, in case other
-			 * threads are found to have already been oom killed.
-			 */
+		if (p->flags & PF_EXITING && !force_kill) {
 			if (p == current) {
 				chosen = p;
 				*ppoints = 1000;
@@ -717,7 +720,7 @@ void out_of_memory(struct zonelist *zonelist, gfp_t gfp_mask,
 	 * goal is to allow it to allocate so that it may quickly exit and free
 	 * its memory.
 	 */
-	if (fatal_signal_pending(current)) {
+	if (fatal_signal_pending(current) || current->flags & PF_EXITING) {
 		set_thread_flag(TIF_MEMDIE);
 		return;
 	}

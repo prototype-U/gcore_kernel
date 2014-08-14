@@ -69,6 +69,8 @@ static int arubaslim_batt_recharging_voltage_2;
 static int arubaslim_batt_full_percent_voltage;
 #endif
 
+#define pr_info(...) (0)
+
 #ifdef DEBUG
 #undef pr_debug
 #define pr_debug pr_info
