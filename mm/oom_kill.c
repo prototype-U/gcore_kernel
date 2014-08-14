@@ -99,7 +99,10 @@ int test_set_oom_score_adj(int new_val)
 static bool has_intersects_mems_allowed(struct task_struct *tsk,
 					const nodemask_t *mask)
 {
-	struct task_struct *start = tsk;
+	struct task_struct *tsk;
+	bool ret = false;
+
+	rcu_read_lock();
 
 	do {
 		if (mask) {
@@ -109,19 +112,21 @@ static bool has_intersects_mems_allowed(struct task_struct *tsk,
 			 * mempolicy intersects current, otherwise it may be
 			 * needlessly killed.
 			 */
-			if (mempolicy_nodemask_intersects(tsk, mask))
-				return true;
+			ret = mempolicy_nodemask_intersects(tsk, mask);
 		} else {
 			/*
 			 * This is not a mempolicy constrained oom, so only
 			 * check the mems of tsk's cpuset.
 			 */
-			if (cpuset_mems_allowed_intersects(current, tsk))
-				return true;
+			ret = cpuset_mems_allowed_intersects(current, tsk);
 		}
+		if (ret)
+			break;
 	} while_each_thread(start, tsk);
 
-	return false;
+	rcu_read_unlock();
+
+	return true;
 }
 #else
 static bool has_intersects_mems_allowed(struct task_struct *tsk,
